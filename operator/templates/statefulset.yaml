@@ -26,6 +26,22 @@ spec:
         galera: {{ .OperatorName }}
         instance: {{ .Name }}
     spec:
+      {{ if eq .Params.ANTI_AFFINITY "true" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - galera
+                  - key: "instance"
+                    operator: In
+                    values:
+                    - {{ .Name }}
+              topologyKey: "kubernetes.io/hostname"
+     {{ end }}
       initContainers:
       - name: {{ .Name }}-init
         image: busybox:1.28
@@ -80,7 +96,7 @@ spec:
       volumes:
       - name: {{ .Name }}-config
         configMap:
-          name: {{ .Name }}-firstboot
+          name: {{ .Name }}-nodeconfig
           items:
             - key: galera.cnf
               path: galera.cnf

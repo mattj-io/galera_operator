@@ -7,7 +7,8 @@ parameters:
   - name: MYSQL_ROOT_PASSWORD
     default: "admin"
   - name: NODE_COUNT
-    default: "1"
+    default: "3"
+    trigger: node_update
   - name: MYSQL_PORT
     default: "3306"
   - name: SST_PORT
@@ -18,4 +19,5 @@ parameters:
     default: "4568"
   - name: VOLUME_SIZE
     default: "10M"
-
+  - name: ANTI_AFFINITY
+    default: False
