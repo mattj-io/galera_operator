@@ -16,3 +16,8 @@ data:
     {{ end -}}
     wsrep_sst_auth = "root:{{ .Params.MYSQL_ROOT_PASSWORD }}"
     binlog_format = ROW
+  innodb.cnf: |
+    [innodb]
+    innodb_autoinc_lock_mode = 2
+    innodb_flush_log_at_trx_commit = 0
+    innodb_buffer_pool_size = 122M

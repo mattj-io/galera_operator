@@ -37,6 +37,12 @@ spec:
           name: replication
         - containerPort: {{ .Params.IST_PORT }}
           name: ist
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - /bin/bash
+                - /etc/galera/wait-for-sync.sh
         livenessProbe:
           exec:
             command: ["mysqladmin", "-p{{ .Params.MYSQL_ROOT_PASSWORD }}", "ping"]

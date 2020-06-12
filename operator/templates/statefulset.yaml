@@ -67,6 +67,12 @@ spec:
           name: replication
         - containerPort: {{ .Params.IST_PORT }}
           name: ist
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                  - /bin/bash
+                  - /etc/galera/wait-for-sync.sh
         livenessProbe:
           exec:
             command: ["mysqladmin", "-p{{ .Params.MYSQL_ROOT_PASSWORD }}", "ping"]
@@ -93,6 +99,9 @@ spec:
         - name: {{ .Name }}-node-scripts
           mountPath: /etc/galera/node-readiness-probe.sh
           subPath: node-readiness-probe.sh
+        - name: {{ .Name }}-node-scripts
+          mountPath: /etc/galera/wait-for-sync.sh
+          subPath: wait-for-sync.sh
       volumes:
       - name: {{ .Name }}-config
         configMap:
@@ -100,6 +109,8 @@ spec:
           items:
             - key: galera.cnf
               path: galera.cnf
+            - key: innodb.cnf
+              path: innodb.cnf
       - name: {{ .Name }}-node-scripts
         configMap:
           name: {{ .Name }}-node-scripts

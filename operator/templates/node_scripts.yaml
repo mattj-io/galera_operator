@@ -6,3 +6,9 @@ metadata:
 data:
   node-readiness-probe.sh: |
     mysql -u root -p{{ .Params.MYSQL_ROOT_PASSWORD }} -e "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | grep -q Synced
+  wait-for-sync.sh: |
+    until mysql -u root -p{{ .Params.MYSQL_ROOT_PASSWORD }} -e "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | grep -q Synced 
+    do
+        echo "Waiting for sync"
+        sleep 5
+    done
