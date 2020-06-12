@@ -1,23 +1,33 @@
 apiVersion: kudo.dev/v1beta1
 parameters:
-  - name: SST_USER
-    default: "root"
-  - name: SST_PASSWORD
-    default: "admin"
   - name: MYSQL_ROOT_PASSWORD
+    description: "MySQL root password"
     default: "admin"
   - name: NODE_COUNT
+    description: "Number of nodes to create in the cluster"
     default: "3"
     trigger: node_update
+  - name: SST_USER
+    description: "User to perform SST as"
+    default: "root"
+  - name: SST_PASSWORD
+    description: "Password for SST user"
+    default: "admin"
   - name: MYSQL_PORT
+    description: "MySQL port"
     default: "3306"
   - name: SST_PORT
+    description: "SST port"
     default: "4444"
   - name: REPLICATION_PORT
+    description: "Replication port"
     default: "4567"
   - name: IST_PORT
+    description: "IST port"
     default: "4568"
   - name: VOLUME_SIZE
+    description: "Size of persistent volume"
     default: "10M"
   - name: ANTI_AFFINITY
+    description: "Enforce pod anti-affinity"
     default: False
