@@ -43,6 +43,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
      {{ end }}
       initContainers:
+      # Stop the image bootstrap script from trying to set up single master
       - name: {{ .Name }}-init
         image: busybox:1.28
         command: ['sh', '-c', 'set -x; if [ ! -d /datadir/mysql ]; then mkdir /datadir/mysql; fi']
@@ -68,6 +69,7 @@ spec:
         - containerPort: {{ .Params.IST_PORT }}
           name: ist
         lifecycle:
+          # Ensure a container is Synced before terminating
           preStop:
             exec:
               command:
@@ -87,7 +89,7 @@ spec:
         readinessProbe:
           exec:
             # Check we can execute queries over TCP (skip-networking is off).
-            command: ["mysql", "-p{{ .Params.MYSQL_ROOT_PASSWORD}}", "-h", "127.0.0.1", "-e", "SELECT 1"]
+            command: ["mysql", "-p{{ .Params.MYSQL_ROOT_PASSWORD }}", "-h", "127.0.0.1", "-e", "SELECT 1"]
           initialDelaySeconds: 5
           periodSeconds: 2
           timeoutSeconds: 1
