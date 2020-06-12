@@ -1,6 +1,8 @@
 # galera_operator
 
-KUDO operator for galera ( https://galeracluster.com/ )
+KUDO operator for Galera on MariaDB
+https://galeracluster.com/
+https://mariadb.org/
 
 Currently just handles deployment
 
