@@ -1,0 +1,67 @@
+apiVersion: kudo.dev/v1beta1
+kudoVersion: 0.12.0
+operatorVersion: 0.1.0
+kubernetesVersion: 1.17.0
+appVersion: 10.5.3
+maintainers:
+- email: matt@mattjarvis.org.uk
+  name: Matt Jarvis
+name: galera
+url: https://mariadb.com/
+operatorVersion: 0.1.0
+plans:
+  deploy:
+    strategy: serial
+    phases:
+      - name: deploy
+        strategy: serial
+        steps:
+          - name: bootstrap_service
+            tasks:
+              - bootstrap_service
+          - name: bootstrap_config
+            tasks:
+              - bootstrap_config
+          - name: bootstrap_deploy
+            tasks:
+              - bootstrap_deploy
+          - name: firstboot_config
+            tasks:
+              - firstboot_config
+          - name: hs_service
+            tasks:
+              - hs_service
+          - name: statefulset
+            tasks:
+              - statefulset
+tasks:
+    - name: bootstrap_config
+      kind: Apply
+      spec:
+        resources:
+          - bootstrap_config.yaml
+    - name: bootstrap_deploy
+      kind: Apply
+      spec:
+        resources:
+          - bootstrap_deploy.yaml
+    - name: bootstrap_service
+      kind: Apply
+      spec:
+        resources:
+          - bootstrap_service.yaml
+    - name: firstboot_config
+      kind: Apply
+      spec:
+        resources:
+          - firstboot_config.yaml
+    - name: hs_service
+      kind: Apply
+      spec:
+        resources:
+          - hs-service.yaml
+    - name: statefulset
+      kind: Apply
+      spec:
+        resources:
+          - statefulset.yaml

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Name }}-bootstrap
+  namespace: {{ .Namespace }}
+  labels:
+    app: galera-bootstrap
+    instance: {{ .Name }}
+spec:
+  selector:
+    matchLabels:
+      app: galera-bootstrap
+      instance: {{ .Name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: galera-bootstrap
+        instance: {{ .Name }}
+    spec:
+      containers:
+      - image: mariadb:latest
+        name: mariadb
+        args:
+        - "--ignore_db_dirs=lost+found"
+        env:
+          # Use secret in real usage
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Params.MYSQL_ROOT_PASSWORD }}
+        ports:
+        - containerPort: {{ .Params.MYSQL_PORT }}
+          name: mysql
+        - containerPort: {{ .Params.SST_PORT }}
+          name: sst
+        - containerPort: {{ .Params.REPLICATION_PORT }}
+          name: replication
+        - containerPort: {{ .Params.IST_PORT }}
+          name: ist
+        livenessProbe:
+          exec:
+            command: ["mysqladmin", "-p{{ .Params.MYSQL_ROOT_PASSWORD }}", "ping"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            # Check we can execute queries over TCP (skip-networking is off).
+            command: ["mysql", "-p{{ .Params.MYSQL_ROOT_PASSWORD }}", "-h", "127.0.0.1", "-e", "SELECT 1"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: {{ .Name }}-bootstrap
+          mountPath: /etc/mysql/conf.d
+      volumes:
+        - name: {{ .Name }}-bootstrap
+          configMap:
+            name: {{ .Name }}-bootstrap
+            items:
+            - key: galera.cnf
+              path: galera.cnf

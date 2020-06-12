@@ -1,0 +1,21 @@
+apiVersion: kudo.dev/v1beta1
+parameters:
+  - name: SST_USER
+    default: "root"
+  - name: SST_PASSWORD
+    default: "admin"
+  - name: MYSQL_ROOT_PASSWORD
+    default: "admin"
+  - name: NODE_COUNT
+    default: "1"
+  - name: MYSQL_PORT
+    default: "3306"
+  - name: SST_PORT
+    default: "4444"
+  - name: REPLICATION_PORT
+    default: "4567"
+  - name: IST_PORT
+    default: "4568"
+  - name: VOLUME_SIZE
+    default: "10M"
+

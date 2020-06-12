@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Name }}-{{ .OperatorName }}
+  namespace: {{ .Namespace }}
+  labels:
+    galera: {{ .OperatorName }}
+    app: galera
+    instance: {{ .Name }}
+  annotations:
+    reloader.kudo.dev/auto: "true"
+spec:
+  selector:
+    matchLabels:
+      app: galera
+      galera: {{ .OperatorName }}
+      instance: {{ .Name }}
+  serviceName: {{ .Name }}-hs
+  replicas: {{ .Params.NODE_COUNT }}
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: galera
+        galera: {{ .OperatorName }}
+        instance: {{ .Name }}
+    spec:
+      initContainers:
+      - name: {{ .Name }}-init
+        image: busybox:1.28
+        command: ['sh', '-c', 'set -x; if [ ! -d /datadir/mysql ]; then mkdir /datadir/mysql; fi']
+        volumeMounts:
+          - name: {{ .Name }}-datadir
+            mountPath: "/datadir"
+      containers:
+      - name: mariadb
+        image: mariadb:latest
+        args:
+        - "--ignore_db_dirs=lost+found"
+        env:
+          # Use secret in real usage
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Params.MYSQL_ROOT_PASSWORD }}
+        ports:
+        - containerPort: {{ .Params.MYSQL_PORT }}
+          name: mysql
+        - containerPort: {{ .Params.SST_PORT }}
+          name: sst
+        - containerPort: {{ .Params.REPLICATION_PORT }}
+          name: replication
+        - containerPort: {{ .Params.IST_PORT }}
+          name: ist
+        livenessProbe:
+          exec:
+            command: ["mysqladmin", "-p{{ .Params.MYSQL_ROOT_PASSWORD }}", "ping"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            # Check we can execute queries over TCP (skip-networking is off).
+            command: ["mysql", "-p{{ .Params.MYSQL_ROOT_PASSWORD}}", "-h", "127.0.0.1", "-e", "SELECT 1"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: {{ .Name }}-config
+          mountPath: /etc/mysql/conf.d
+        - name: {{ .Name }}-datadir
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: {{ .Name }}-config
+        configMap:
+          name: {{ .Name }}-firstboot
+          items:
+            - key: galera.cnf
+              path: galera.cnf
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Name }}-datadir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Params.VOLUME_SIZE }}
+
