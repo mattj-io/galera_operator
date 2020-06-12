@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Name }}-node-scripts
+  namespace: {{ .Namespace }}
+data:
+  node-readiness-probe.sh: |
+    mysql -u root -p{{ .Params.MYSQL_ROOT_PASSWORD }} -e "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | grep -q Synced

@@ -22,6 +22,9 @@ plans:
           - name: bootstrap_config
             tasks:
               - bootstrap_config
+          - name: node_scripts
+            tasks:
+              - node_scripts
           - name: bootstrap_deploy
             tasks:
               - bootstrap_deploy
@@ -31,6 +34,9 @@ plans:
           - name: hs_service
             tasks:
               - hs_service
+          - name: pdb
+            tasks:
+              - pdb
           - name: statefulset
             tasks:
               - statefulset
@@ -55,11 +61,21 @@ tasks:
       spec:
         resources:
           - firstboot_config.yaml
+    - name: node_scripts
+      kind: Apply
+      spec:
+        resources:
+          - node_scripts.yaml
     - name: hs_service
       kind: Apply
       spec:
         resources:
           - hs-service.yaml
+    - name: pdb
+      kind: Apply
+      spec:
+        resources:
+          - pdb.yaml
     - name: statefulset
       kind: Apply
       spec:

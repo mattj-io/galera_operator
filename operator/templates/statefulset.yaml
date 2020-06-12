@@ -57,6 +57,11 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
+        startupProbe:
+          exec:
+            command: ["/bin/bash", "-c", "/etc/galera/node-readiness-probe.sh" ]
+          failureThreshold: 30
+          periodSeconds: 10
         readinessProbe:
           exec:
             # Check we can execute queries over TCP (skip-networking is off).
@@ -69,6 +74,9 @@ spec:
           mountPath: /etc/mysql/conf.d
         - name: {{ .Name }}-datadir
           mountPath: /var/lib/mysql
+        - name: {{ .Name }}-node-scripts
+          mountPath: /etc/galera/node-readiness-probe.sh
+          subPath: node-readiness-probe.sh
       volumes:
       - name: {{ .Name }}-config
         configMap:
@@ -76,6 +84,10 @@ spec:
           items:
             - key: galera.cnf
               path: galera.cnf
+      - name: {{ .Name }}-node-scripts
+        configMap:
+          name: {{ .Name }}-node-scripts
+          defaultMode: 0755
   volumeClaimTemplates:
     - metadata:
         name: {{ .Name }}-datadir
