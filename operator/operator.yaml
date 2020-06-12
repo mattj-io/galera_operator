@@ -31,9 +31,9 @@ plans:
           - name: firstboot_config
             tasks:
               - firstboot_config
-          - name: hs_service
+          - name: cluster_services
             tasks:
-              - hs_service
+              - cluster_services
           - name: pdb
             tasks:
               - pdb
@@ -82,11 +82,12 @@ tasks:
       spec:
         resources:
           - node_scripts.yaml
-    - name: hs_service
+    - name: cluster_services
       kind: Apply
       spec:
         resources:
           - hs-service.yaml
+          - cs-service.yaml
     - name: pdb
       kind: Apply
       spec:
