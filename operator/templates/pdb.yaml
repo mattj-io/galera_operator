@@ -1,0 +1,15 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Name }}-pdb
+  namespace: {{ .Namespace }}
+  labels:
+    app: galera
+    galera: {{ .Name }}
+spec:
+  selector:
+    matchLabels:
+      app: galera
+      kudo.dev/instance: {{ .Name }}
+  maxUnavailable: 1
+
